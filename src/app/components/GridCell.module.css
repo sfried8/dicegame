@@ -1,0 +1,39 @@
+.grid-cell {
+    border: 1px solid #000;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 72px;
+    line-height: 48px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.empty {
+    background-color: #aaa;
+    color: #fff;
+}
+
+.frozen.filled {
+    background-color: #aff;
+    color: #666;
+}
+
+.filled {
+    background-color: #fff;
+    color: #000;
+}
+
+.disabled {
+    cursor: not-allowed;
+    background-color: #aaa;
+    color: #444;
+    opacity: 0.5;
+}
+
+.gold {
+    background-color: #ff0;
+    color: #000;
+}
