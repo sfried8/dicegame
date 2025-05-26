@@ -9,6 +9,7 @@ enum PERKS {
     noones,
     notwos,
     onepercentchanceforgold,
+    minusonehandplusthreereroll,
 }
 const PerkDisplayNames = {
     [PERKS.plusonereroll]: "+1 Reroll",
@@ -19,6 +20,7 @@ const PerkDisplayNames = {
     [PERKS.noones]: "no 1s",
     [PERKS.notwos]: "no 2s",
     [PERKS.onepercentchanceforgold]: "1% chance for gold die",
+    [PERKS.minusonehandplusthreereroll]: "-1 Hand +3 Rerolls",
 };
 const stackablePerks = [
     PERKS.plusonereroll,
@@ -26,6 +28,7 @@ const stackablePerks = [
     PERKS.doubleodds,
     PERKS.doubleevens,
     PERKS.onepercentchanceforgold,
+    PERKS.minusonehandplusthreereroll,
 ];
 const nonStackablePerks = [PERKS.onesaresixes, PERKS.noones, PERKS.notwos];
 function getRandomPerks(existingPerks: PERKS[], rng: RNG) {

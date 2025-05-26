@@ -30,5 +30,3 @@ export default function GridCell({
         </div>
     );
 }
-
-function onClick() {}

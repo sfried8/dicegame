@@ -1,4 +1,3 @@
-import { useState } from "react";
 import styles from "./PerkPicker.module.css";
 import { PerkDisplayNames, PERKS } from "../controller/Perks";
 
@@ -16,6 +15,7 @@ export default function PerkPicker({ options, onSelect }: PerkPickerProps) {
         <div className={styles.perkPicker}>
             <div className={styles.modal}>
                 <div className={styles.modalBody}>
+                    <h1 className={styles.title}>Choose a perk</h1>
                     {options.map((option) => (
                         <button
                             key={option}

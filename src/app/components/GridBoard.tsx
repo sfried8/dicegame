@@ -2,7 +2,6 @@
 import GridCell from "./GridCell";
 import styles from "./GridBoard.module.css";
 import GridCellObject from "../model/GridCell";
-import { useState } from "react";
 
 export default function GridBoard({
     cells,

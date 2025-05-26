@@ -2,8 +2,6 @@
 import { useImmer } from "use-immer";
 import GridCellObject from "../model/GridCell";
 import GridBoard from "./GridBoard";
-import { produce } from "immer";
-import seedrandom from "seedrandom";
 import {
     getActiveCellNeighbors,
     getNeighborsInBetween,
@@ -12,7 +10,7 @@ import CalculateScore from "../controller/Score";
 import styles from "./GameRound.module.css";
 import { PERKS } from "../controller/Perks";
 import RNG from "../model/RNG";
-let rng: seedrandom.PRNG | null = null;
+import GridCell from "./GridCell";
 
 function getPossibleDiceValues(perks: PERKS[]) {
     return [1, 2, 3, 4, 5, 6].filter((value) => {
@@ -73,6 +71,8 @@ export default function GameRound({
     const [score, setScore] = useImmer(0);
     const [remainingHands, setRemainingHands] = useImmer(startingHands);
     const [remainingRerolls, setRemainingRerolls] = useImmer(startingRerolls);
+    const [proposedHand, setProposedHand] = useImmer<GridCellObject[]>([]);
+    const [handScore, setHandScore] = useImmer(0);
     const handleSetActiveCell = (cell: GridCellObject | null) => {
         setCells((draft) => {
             if (!cell) {
@@ -102,20 +102,24 @@ export default function GameRound({
         setRemainingHands((draft) => draft - 1);
         console.log(inbetweeners.map((c) => c.value));
         const handScore = CalculateScore(inbetweeners, perks);
-        setScore((draft) => draft + handScore);
-        const inbetweenerIndexes = inbetweeners.map((c) => c.index);
-        setCells((draft) => {
-            draft.flat().forEach((c) => {
-                if (inbetweenerIndexes.includes(c.index)) {
-                    c.value = null;
-                }
+        setHandScore(handScore);
+        setTimeout(() => {
+            setHandScore(0);
+            setScore((draft) => draft + handScore);
+            const inbetweenerIndexes = inbetweeners.map((c) => c.index);
+            setCells((draft) => {
+                draft.flat().forEach((c) => {
+                    if (inbetweenerIndexes.includes(c.index)) {
+                        c.value = null;
+                    }
+                });
             });
-        });
-        if (score + handScore >= scoreTarget) {
-            onRoundWin?.();
-        } else if (remainingHands === 1) {
-            onGameOver?.();
-        }
+            if (score + handScore >= scoreTarget) {
+                onRoundWin?.();
+            } else if (remainingHands === 1) {
+                onGameOver?.();
+            }
+        }, 2000);
     }
     function onClick(cell: GridCellObject) {
         if (!activeCell) {
@@ -124,7 +128,12 @@ export default function GameRound({
         }
         const inbetweeners = getNeighborsInBetween(cells, activeCell, cell);
         console.log(inbetweeners);
-        playHand(inbetweeners);
+        setProposedHand(
+            inbetweeners.map(
+                (c) =>
+                    new GridCellObject(c.index, c.value, false, false, c.gold)
+            )
+        );
         handleSetActiveCell(null);
     }
     function onRightClick(cell: GridCellObject) {
@@ -137,6 +146,7 @@ export default function GameRound({
         if (remainingRerolls === 0) {
             return;
         }
+        setProposedHand([]);
         setRemainingRerolls((draft) => draft - 1);
         setCells((draft) => {
             const goldProbability =
@@ -150,26 +160,49 @@ export default function GameRound({
         });
     }
     return (
-        <div className={styles["game-round"]}>
-            <GridBoard
-                cells={cells}
-                onClick={onClick}
-                onRightClick={onRightClick}
-            />
-            <button
-                onClick={reroll}
-                disabled={remainingRerolls === 0}
-                className={styles["reroll"]}
-            >
-                Reroll ({remainingRerolls})
-            </button>
-            <div className={styles["hands-remaining"]}>
-                Hands ({remainingHands})
+        <div>
+            <div className={styles["game-round"]}>
+                <GridBoard
+                    cells={cells}
+                    onClick={onClick}
+                    onRightClick={onRightClick}
+                />
+                <button
+                    onClick={reroll}
+                    disabled={remainingRerolls === 0}
+                    className={styles["reroll"]}
+                >
+                    Reroll ({remainingRerolls})
+                </button>
+                <div className={styles["hands-remaining"]}>
+                    Hands ({remainingHands})
+                </div>
+                <div>
+                    <div>Score: {score}</div>
+                    <div>Target: {scoreTarget}</div>
+                </div>
             </div>
-            <div>
-                <div>Score: {score}</div>
-                <div>Target: {scoreTarget}</div>
-            </div>
+            {proposedHand.length > 0 && (
+                <div className={styles["proposed-hand"]}>
+                    {proposedHand.map((cell) => (
+                        <GridCell
+                            cell={cell}
+                            key={cell.index}
+                            onClick={() => {}}
+                            onRightClick={() => {}}
+                        ></GridCell>
+                    ))}
+                    <button
+                        onClick={() => {
+                            playHand(proposedHand);
+                            setProposedHand([]);
+                        }}
+                    >
+                        Play Hand
+                    </button>
+                </div>
+            )}
+            {handScore > 0 && <div>+{handScore}</div>}
         </div>
     );
 }

@@ -1,7 +1,6 @@
 "use client";
 import styles from "../page.module.css";
 import GameRound from "./GameRound";
-import GridCellObject from "../model/GridCell";
 import { useState } from "react";
 import getScoreTarget from "../controller/ScoreTarget";
 import PerkPicker from "./PerkPicker";
@@ -32,6 +31,10 @@ export default function GameHandler({ randomSeed }: { randomSeed: string }) {
             }
             if (perk === PERKS.plusonereroll) {
                 handsAndRerolls.rerolls += 1;
+            }
+            if (perk === PERKS.minusonehandplusthreereroll) {
+                handsAndRerolls.hands -= 1;
+                handsAndRerolls.rerolls += 3;
             }
         });
         return handsAndRerolls;
